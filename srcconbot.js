@@ -49,20 +49,9 @@ new CronJob('0 * * * * *', function() {
 var moment = require('moment-timezone');
 moment.tz.setDefault('America/Los_Angeles');
 
-var timestamps = {
-    [moment.tz('2016-07-28 10:30', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'thursdayAM1',
-    [moment.tz('2016-07-28 12:00', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'thursdayAM2',
-    [moment.tz('2016-07-28 14:30', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'thursdayPM1',
-    [moment.tz('2016-07-28 16:00', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'thursdayPM2',
-    [moment.tz('2016-07-29 10:30', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'fridayAM1',
-    [moment.tz('2016-07-29 12:00', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'fridayAM2',
-    [moment.tz('2016-07-29 14:30', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'fridayPM1',
-    [moment.tz('2016-07-29 16:00', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'fridayPM2'
-}
-
 var checkTimeMatch = function() {
     var now = moment().startOf('minute'),
-        match = timestamps[now.format('YYYY-MM-DD HH:mm')];
+        match = transcripts[now.format('YYYY-MM-DD HH:mm')];
 
     if (match) {
         sendAlert(match);
@@ -75,7 +64,7 @@ var sendAlert = function(timeblock, message) {
     if (message) {
         postToSlack(message)
     } else {
-        transcripts[timeblock].forEach(function(transcript) {
+        timeblock.forEach(function(transcript) {
             var attachments = [{
                 'thumb_url': 'http://srccon.org/media/img/logo75.png',
                 'pretext': ':speech_balloon::tada: A SRCCON 2016 session with live transcription is about to start!',
@@ -143,8 +132,9 @@ controller.on('create_incoming_webhook',function(bot, webhook_config) {
     });
 })
 
+var key = d => moment.tz(d, "America/Los_Angeles").format("YYYY-MM-DD HH:mm");
 var transcripts = {
-    'thursdayAM1': [
+    [key('2016-07-28 10:30')]: [
         {
             "day": "Thursday", 
             "description": "News apps teams are becoming more technically sophisticated: building tools, databases and custom CMS's. Our newsrooms are now (partially) responsible for product, but struggle to implement modern tech processes (user-centric design, agile development, automated testing). How do we balance the \"do it right\" attitude of product with the \"do it now\" needs of editorial? Who needs to be at the table for those kinds of decisions? We want to look at some effective lessons that can be shared across the different disciplines and discuss effective, productive ways to bridge the gap.", 
@@ -176,7 +166,7 @@ var transcripts = {
             "title": "How do we convey technical ideas without dumbing things down?"
         }
     ],
-    'thursdayAM2': [
+    [key('2016-07-28 12:00')]: [
         {
             "day": "Thursday", 
             "description": "At the end of 2014, Eric Meyer opened his Facebook feed to see an automated post marked \"your year in review,\" with a picture of his daughter--who had died that year from a brain tumor--surrounded by clip art of partygoers, confetti, and balloons. Nobody meant to cause Meyer harm, but thoughtlessness in the design of the feature (what he termed \"inadvertent algorithmic cruelty\") still left him shaken. And countless other examples abound. Of course, in the news industry, we're no strangers to accidental (and disastrous) juxtaposition: real estate ads placed next to stories on homelessness, bots that generate cringe-worthy content, and scheduled social media posts that go out during the worst kind of breaking news. In this session, we'll look at case studies of humane and inhumane design, practice identifying pitfalls in our news apps, and figure out how to care for our readers beyond just transmitting information.", 
@@ -208,7 +198,7 @@ var transcripts = {
             "title": "How can we peer review our data stories?"
         }
     ],
-    'thursdayPM1': [
+    [key('2016-07-28 14:30')]: [
         {
             "day": "Thursday", 
             "description": "Algorithms play an increasingly relevant role in shaping our digital and physical experiences of the world. It is frequently the case that data from our digital footprints is used to predict our behavior and make decisions about the choices available to us. This unprecedented capacity to collect and analyze data has brought along with it a troubling dismissiveness of user agency, participation, and ownership. Such systems assume that it is an acceptable by-product for their users to have no understanding of the decisions being made about them and no agency in that decision-making process. For the most part, the invisibilized nature of these decisions are seen as a feature, not a bug, of a good user experience. As we begin to use algorithmic decision-making in areas of our lives that are increasingly high-stakes, it is essential that we create and utilize processes that maintain user agency and understanding. In this session, participants will be imagining and designing user experiences that employ participatory algorithmic-decision making processes. The session will be open to folks from all experience levels. We would be excited to see folks from a variety of different backgrounds, including designers, data scientists, journalists, privacy & security practitioners, and organizers from marginalized and frequently surveilled communities.", 
@@ -240,7 +230,7 @@ var transcripts = {
             "title": "The Ecology of Newsroom Software"
         }
     ],
-    'thursdayPM2': [
+    [key('2016-07-28 16:00')]: [
         {
             "day": "Thursday", 
             "description": "Who are you building for? What do they need? User research is something everyone on the team can be involved in, whether by asking a partner what they think or creating a quick usability test for others to try. Let's make a user research toolkit for everyone who's in a distributed dev team that works in news. How can we empower everyone on the team to run their own mini research projects, and then filter the results back into the product? Which listening/observation methods would help you with your work? We'll talk as a group about different methodologies, techniques, and organizational resistance that we've encountered. Together we'll aim to create a scrappy user research toolkit for all SRCCONers to take with them back to the office.", 
@@ -272,7 +262,7 @@ var transcripts = {
             "title": "Tools to search millions of documents remotely and across borders"
         }
     ],
-    'fridayAM1': [
+    [key('2016-07-29 10:30')]: [
         {
             "day": "Friday", 
             "description": "You've read about messaging apps and the rise of AI-driven conversational news interfaces — but what's really effective for a news bot and what's just a tedious iteration of Choose Your Own Adventure, or Excel Macros, or if-this-then-that statements by another name? Millie and SMI spent the last year thinking about what makes a news app sound like a smart interesting friend. In this session we'll workshop how to ensure your news bots don't get stuck in a boring valley of uncanny.", 
@@ -304,7 +294,7 @@ var transcripts = {
             "title": "‘Insert Caption Here': how Facebook made video captioning cool"
         }
     ],
-    'fridayAM2': [
+    [key('2016-07-29 12:00')]: [
         {
             "day": "Friday", 
             "description": "In newsrooms of old, jobs were pretty easy to understand (reporters, editors, photographers, illustrators), as were the responsibilities that went with those jobs. But newsrooms still can be old-school, so even if you write and deploy code, you still probably have some non-technical managers and peers. How do you help them better understand what you do? How can you work effectively together and stay on good terms? How do you pitch ideas to them, and how do they pitch ideas to you? How do you communicate about progress, priorities and problems, both on a daily basis and in a crisis? Let's talk about what's worked and what still needs improvement.", 
@@ -336,7 +326,7 @@ var transcripts = {
             "title": "Keeping people at the forefront of data stories"
         }
     ],
-    'fridayPM1': [
+    [key('2016-07-29 14:30')]: [
         {
             "day": "Friday", 
             "description": "Science Fiction authors often embed deep insights into the future of technology within their stories. Come to this session to share examples of fascinating science fictional treatments of media and networked communication with other attendees and geek out about who got it right and who may yet come out correct. (My idea is to solicit ahead of time 4-6 super fans who are willing to give low-key lightning talks summarizing plots with an emphasis on the interesting media bits.)", 
@@ -368,7 +358,7 @@ var transcripts = {
             "title": "Give and Receive: Can we strengthen our community through remote mentorship and office hours?"
         }
     ],
-    'fridayPM2': [
+    [key('2016-07-29 16:00')]: [
         {
             "day": "Friday", 
             "description": "**This session would be great for you if you're comfortable working collaboratively (sketching and sharing) in small groups.**\n\nWriting down processes, goals, and workflows is an important part of building healthy, transparent, and collaborative teams. But finding time to write and making sure that people read those documents is a constant challenge. This activity-based brainstorm session will lean into the expertise and experience of attendees to explore methods for building solid documentation practices into a team's culture.", 
