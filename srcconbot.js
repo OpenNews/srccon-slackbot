@@ -96,37 +96,37 @@ var sendAlert = function(timeblock, message) {
 }
 
 var postToSlack = function(text, attachments) {
-    controller.storage.teams.all(function(err,teams) {
-      var count = 0;
-      for (var t in teams) {
-        if (teams[t].incoming_webhook) {
-          count++;
-          controller.spawn(teams[t]).sendWebhook({
-            text: text,
-            attachments: attachments
-          },function(err) {
-            if(err) {
-              console.log(err);
-            }
-          });
+    controller.storage.teams.all(function(err, teams) {
+        var count = 0;
+        for (var t in teams) {
+            if (teams[t].incoming_webhook) {
+                count++;
+                controller.spawn(teams[t]).sendWebhook({
+                    text: text,
+                    attachments: attachments
+                }, function(err) {
+                if (err) {
+                    console.log(err);
+                }
+            });
         }
-      }
-      console.log('Message sent to ' + count + ' teams!');
+    }
+    console.log('Message sent to ' + count + ' teams!');
     });
 }
 
-controller.setupWebserver(PORT,function(err,webserver) {
-  controller.createOauthEndpoints(controller.webserver,function(err,req,res) {
-    if (err) {
-      res.status(500).send('ERROR: ' + err);
-    } else {
-      //res.send('Success!');
-      res.redirect('http://srccon.org/slackbot/success/');
-    }
-  });
+controller.setupWebserver(PORT, function(err, webserver) {
+    controller.createOauthEndpoints(controller.webserver, function(err, req, res) {
+        if (err) {
+            res.status(500).send('ERROR: ' + err);
+        } else {
+            //res.send('Success!');
+            res.redirect('http://srccon.org/slackbot/success/');
+        }
+    });
 });
 
-controller.on('create_incoming_webhook',function(bot, webhook_config) {
+controller.on('create_incoming_webhook', function(bot, webhook_config) {
     bot.sendWebhook({
         text: ':thumbsup: SRCCON Transcript Alerts are ready to roll! Each time a session with live transcription is about to begin, we\'ll post the title, description, and a link to the live transcript right here.'
     });
