@@ -68,24 +68,24 @@ var sendAlert = function(timeblock, message) {
             var attachments = [{
                 'thumb_url': 'http://srccon.org/media/img/logo75.png',
                 'pretext': ':speech_balloon::tada: A SRCCON 2016 session with live transcription is about to start!',
-                'fallback': 'A SRCCON 2016 session with live transcription is about to start: ' + transcript['title'] + '. Open the live transcript at http://srccon.aloft.nu/2016-'+transcript['slug']+'.',
+                'fallback': `A SRCCON 2016 session with live transcription is about to start: ${transcript.title}. Open the live transcript at http://srccon.aloft.nu/2016-${transcript.id}.`,
                 'color': '#F79797',
-                'title': transcript['title'],
-                'title_link': 'http://srccon.aloft.nu/2016-'+transcript['slug'],
-                'text': transcript['description'],
+                'title': transcript.title,
+                'title_link': 'http://srccon.aloft.nu/2016-'+transcript.id,
+                'text': transcript.description,
                 'fields': [
                     {
                         'title': 'Facilitator(s)',
-                        'value': transcript['facilitators'],
+                        'value': transcript.facilitators,
                     },
                     {
                         'title': 'Transcript',
-                        'value': '<http://srccon.aloft.nu/2016-'+transcript['slug']+'|Open the live transcript>',
+                        'value': `<http://srccon.aloft.nu/2016-${transcript.id}|Open the live transcript>`,
                         'short': true
                     },
                     {
                         'title': 'Schedule',
-                        'value': '<http://schedule.srccon.org/#_session-'+transcript['slug']+'|Open in SRCCON schedule>',
+                        'value': `<http://schedule.srccon.org/#_session-${transcript.id}|Open in SRCCON schedule>`,
                         'short': true
                     }
                 ]
