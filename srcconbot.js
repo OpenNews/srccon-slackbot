@@ -18,7 +18,7 @@ var CLIENTID = process.env.CLIENTID,
     PORT = process.env.PORT;
 
 if (!CLIENTID || !CLIENTSECRET || !PORT) {
-    console.log('Error: Specify CLIENTID CLIENTSECRET and PORT in environment');
+    console.log('Error: Specify CLIENTID, CLIENTSECRET, and PORT in environment');
     process.exit(1);
 }
 
@@ -326,7 +326,7 @@ var transcripts = {
             "title": "Keeping people at the forefront of data stories"
         }
     ],
-    [key('2016-07-26 15:58')]: [
+    [key('2016-07-29 14:30')]: [
         {
             "day": "Friday", 
             "description": "Science Fiction authors often embed deep insights into the future of technology within their stories. Come to this session to share examples of fascinating science fictional treatments of media and networked communication with other attendees and geek out about who got it right and who may yet come out correct. (My idea is to solicit ahead of time 4-6 super fans who are willing to give low-key lightning talks summarizing plots with an emphasis on the interesting media bits.)", 
@@ -358,7 +358,7 @@ var transcripts = {
             "title": "Give and Receive: Can we strengthen our community through remote mentorship and office hours?"
         }
     ],
-    [key('2016-07-26 15:59')]: [
+    [key('2016-07-29 16:00')]: [
         {
             "day": "Friday", 
             "description": "**This session would be great for you if you're comfortable working collaboratively (sketching and sharing) in small groups.**\n\nWriting down processes, goals, and workflows is an important part of building healthy, transparent, and collaborative teams. But finding time to write and making sure that people read those documents is a constant challenge. This activity-based brainstorm session will lean into the expertise and experience of attendees to explore methods for building solid documentation practices into a team's culture.", 
