@@ -50,19 +50,19 @@ var moment = require('moment-timezone');
 moment.tz.setDefault('America/Los_Angeles');
 
 var timestamps = {
-    [moment.tz('2016-07-26 13:07', 'America/Los_Angeles')]: 'thursdayAM1',
-    [moment.tz('2016-07-26 13:08', 'America/Los_Angeles')]: 'thursdayAM2',
-    [moment.tz('2016-07-26 13:09', 'America/Los_Angeles')]: 'thursdayPM1',
-    [moment.tz('2016-07-28 16:00', 'America/Los_Angeles')]: 'thursdayPM2',
-    [moment.tz('2016-07-29 10:30', 'America/Los_Angeles')]: 'fridayAM1',
-    [moment.tz('2016-07-29 12:00', 'America/Los_Angeles')]: 'fridayAM2',
-    [moment.tz('2016-07-29 14:30', 'America/Los_Angeles')]: 'fridayPM1',
-    [moment.tz('2016-07-29 16:00', 'America/Los_Angeles')]: 'fridayPM2'
+    [moment.tz('2016-07-28 10:30', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'thursdayAM1',
+    [moment.tz('2016-07-28 12:00', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'thursdayAM2',
+    [moment.tz('2016-07-28 14:30', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'thursdayPM1',
+    [moment.tz('2016-07-28 16:00', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'thursdayPM2',
+    [moment.tz('2016-07-29 10:30', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'fridayAM1',
+    [moment.tz('2016-07-29 12:00', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'fridayAM2',
+    [moment.tz('2016-07-29 14:30', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'fridayPM1',
+    [moment.tz('2016-07-29 16:00', 'America/Los_Angeles').format('YYYY-MM-DD HH:mm')]: 'fridayPM2'
 }
 
 var checkTimeMatch = function() {
-    var now = moment().seconds(0),
-        match = timestamps[now];
+    var now = moment().startOf('minute'),
+        match = timestamps[now.format('YYYY-MM-DD HH:mm')];
 
     if (match) {
         sendAlert(match);
