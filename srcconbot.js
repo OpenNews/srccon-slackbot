@@ -1,18 +1,24 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           ______     ______     ______   __  __     __     ______
-          /\  == \   /\  __ \   /\__  _\ /\ \/ /    /\ \   /\__  _\
-          \ \  __<   \ \ \/\ \  \/_/\ \/ \ \  _"-.  \ \ \  \/_/\ \/
-           \ \_____\  \ \_____\    \ \_\  \ \_\ \_\  \ \_\    \ \_\
-            \/_____/   \/_____/     \/_/   \/_/\/_/   \/_/     \/_/
+
+A Slackbot that posts reminders into a Slack channel when SRCCON 2016 sessions
+with live transcripts are about to start. Built with Botkit.
+
+Uses node-cron to run a job every minute that checks timestamps
+and sends an alert if sessions are about to start.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+// Botkit is so good
 var Botkit = require('botkit');
 
+// if we're running locally, look for credentials in an env.js file that's
+// not in the repo. In production, set credentials as Heroku config vars.
 if(!process.env.CLIENTID) {
     require('./env.js')
 }
 
+// the bot needs these three things, given to you when you create
+// a new Slack app: https://api.slack.com/apps
 var CLIENTID = process.env.CLIENTID,
     CLIENTSECRET = process.env.CLIENTSECRET,
     PORT = process.env.PORT;
@@ -22,6 +28,8 @@ if (!CLIENTID || !CLIENTSECRET || !PORT) {
     process.exit(1);
 }
 
+// use redis datastore for team/channel information, provided
+// by REDISTOGO if we're on Heroku
 if (process.env.REDISTOGO_URL) {
     var redisConfig = {
         'url': process.env.REDISTOGO_URL
@@ -31,7 +39,7 @@ if (process.env.REDISTOGO_URL) {
 }
 var redisStorage = require('botkit-storage-redis')(redisConfig);
 
-
+// fire up our Slackbot, where we only need an `incoming-webhook`
 var controller = Botkit.slackbot({
     storage: redisStorage
     //json_file_store: './db_slackbutton_incomingwebhook/'
@@ -41,14 +49,14 @@ var controller = Botkit.slackbot({
     scopes: ['incoming-webhook'],
 });
 
-var CronJob = require('cron').CronJob;
-new CronJob('0 * * * * *', function() {
-    checkTimeMatch();
-}, null, true, 'America/Los_Angeles');
-
+// we're in Portland, so make sure that all time comparisons
+// are forced to Pacific, aka best coast time
 var moment = require('moment-timezone');
 moment.tz.setDefault('America/Los_Angeles');
 
+// this is the function called by the cron job each minute. Gets current time
+// at minute precision to avoid millisecond shenanigans. Matches string format
+// against keys in `transcripts` object to see if any alerts should be sent.
 var checkTimeMatch = function() {
     var now = moment().startOf('minute'),
         match = transcripts[now.format('YYYY-MM-DD HH:mm')];
@@ -60,6 +68,10 @@ var checkTimeMatch = function() {
     }
 }
 
+// given a `timeblock`, gets data from `transcripts` object and formats
+// into Slack-compatible messages. Then passes each into postToSlack()
+// to handle sending to each subscribed Slack team. Can send a plaintext
+// message instead if passed a `message` param.
 var sendAlert = function(timeblock, message) {
     if (message) {
         postToSlack(message)
@@ -95,6 +107,9 @@ var sendAlert = function(timeblock, message) {
     }
 }
 
+// sends a message to all subscribed Slack teams. Pass in a `text` string
+// to send a plaintext alert. Pass in an `attachments` object to send
+// a Slack-formatted message.
 var postToSlack = function(text, attachments) {
     controller.storage.teams.all(function(err, teams) {
         var count = 0;
@@ -115,6 +130,8 @@ var postToSlack = function(text, attachments) {
     });
 }
 
+// sets up an oauth endpoint at https://BOT_SITE/oauth. This is
+// the Redirect URI you give your Slack app to uses for authentication.
 controller.setupWebserver(PORT, function(err, webserver) {
     controller.createOauthEndpoints(controller.webserver, function(err, req, res) {
         if (err) {
@@ -126,12 +143,17 @@ controller.setupWebserver(PORT, function(err, webserver) {
     });
 });
 
+// provides an onboarding message when a Slack team first authenicates the bot.
 controller.on('create_incoming_webhook', function(bot, webhook_config) {
     bot.sendWebhook({
-        text: ':thumbsup: SRCCON Transcript Alerts are ready to roll! Each time a session with live transcription is about to begin, we\'ll post the title, description, and a link to the live transcript right here.'
+        text: ':thumbsup: SRCCON Transcript Alerts are ready to roll! Each time a session with live transcription is about to begin, we\'ll post details and a link to the live transcript right here.'
     });
 })
 
+// data specific to SRCCON 2016. Keys are string-formatted datetimes forced
+// to Pacific Time Zone to match the `now` moment created by `checkTimeMatch`.
+// Values are lists of session objects that can be passed into `sendAlert`
+// and formatted for sending to Slack.
 var key = d => moment.tz(d, "America/Los_Angeles").format("YYYY-MM-DD HH:mm");
 var transcripts = {
     [key('2016-07-28 10:30')]: [
@@ -391,3 +413,9 @@ var transcripts = {
         }
     ]
 }
+
+// let's start this thing. Runs `checkTimeMatch` every minute, triggering
+// posts to all subscribed Slack teams each time a `now` moment matches
+// a timestamp key in the `transcripts` object.
+var CronJob = require('cron').CronJob;
+new CronJob('0 * * * * *', checkTimeMatch, null, true, 'America/Los_Angeles');
