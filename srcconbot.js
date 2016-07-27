@@ -84,7 +84,7 @@ var sendAlert = function(timeblock, message) {
                 'color': '#F79797',
                 'title': transcript.title,
                 'title_link': 'http://srccon.aloft.nu/2016-'+transcript.id,
-                //'text': transcript.description,
+                'text': transcript.description,
                 'fields': [
                     {
                         'title': 'Facilitator(s)',
@@ -156,7 +156,7 @@ controller.on('create_incoming_webhook', function(bot, webhook_config) {
 // and formatted for sending to Slack.
 var key = d => moment.tz(d, "America/Los_Angeles").format("YYYY-MM-DD HH:mm");
 var transcripts = {
-    [key('2016-07-26 17:23')]: [
+    [key('2016-07-26 17:26')]: [
         {
             "day": "Thursday", 
             "description": "News apps teams are becoming more technically sophisticated: building tools, databases and custom CMS's. Our newsrooms are now (partially) responsible for product, but struggle to implement modern tech processes (user-centric design, agile development, automated testing). How do we balance the \"do it right\" attitude of product with the \"do it now\" needs of editorial? Who needs to be at the table for those kinds of decisions? We want to look at some effective lessons that can be shared across the different disciplines and discuss effective, productive ways to bridge the gap.", 
