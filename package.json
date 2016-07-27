@@ -12,5 +12,8 @@
     "start": "node srcconbot.js"
   },
   "author": "Ryan Pitts",
+  "contributors": [
+    "Thomas Wilburn"
+  ],
   "license": "MIT"
 }
