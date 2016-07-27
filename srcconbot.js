@@ -156,7 +156,7 @@ controller.on('create_incoming_webhook', function(bot, webhook_config) {
 // and formatted for sending to Slack.
 var key = d => moment.tz(d, "America/Los_Angeles").format("YYYY-MM-DD HH:mm");
 var transcripts = {
-    [key('2016-07-28 10:30')]: [
+    [key('2016-07-26 17:23')]: [
         {
             "day": "Thursday", 
             "description": "News apps teams are becoming more technically sophisticated: building tools, databases and custom CMS's. Our newsrooms are now (partially) responsible for product, but struggle to implement modern tech processes (user-centric design, agile development, automated testing). How do we balance the \"do it right\" attitude of product with the \"do it now\" needs of editorial? Who needs to be at the table for those kinds of decisions? We want to look at some effective lessons that can be shared across the different disciplines and discuss effective, productive ways to bridge the gap.", 
