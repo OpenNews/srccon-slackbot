@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Slackbot alerts for SRCCON transcription sessions",
   "main": "srcconbot.js",
+  "engines": {
+    "node": "6.11.1"
+  },
   "dependencies": {
     "botkit": "0.2.2",
     "botkit-storage-redis": "1.0.1",
