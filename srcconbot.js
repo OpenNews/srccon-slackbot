@@ -49,10 +49,15 @@ var controller = Botkit.slackbot({
     scopes: ['incoming-webhook'],
 });
 
-// we're in Minneaoplis for 2017, so make sure
-// all time comparisons are forced to Central Time
+// the code below expects a timezone string in a few places,
+// so let's make sure we're consistent across all of them.
+// This should be set to the timezone where the physical event
+// is taking place. We're in Minneapolis for 2017
+var currentTimezone = 'America/Chicago';
+
+// make sure moment forces all time comparisons to `currentTimezone`
 var moment = require('moment-timezone');
-moment.tz.setDefault('America/Chicago');
+moment.tz.setDefault(currentTimezone);
 
 // this is the function called by the cron job each minute. Gets current time
 // at minute precision to avoid millisecond shenanigans. Matches string format
@@ -154,7 +159,7 @@ controller.on('create_incoming_webhook', function(bot, webhook_config) {
 // to Central Time to match the `now` moment created by `checkTimeMatch`.
 // Values are lists of session objects that can be passed into `sendAlert`
 // and formatted for sending to Slack.
-var key = d => moment.tz(d, "America/Chicago").format("YYYY-MM-DD HH:mm");
+var key = d => moment.tz(d, currentTimezone).format("YYYY-MM-DD HH:mm");
 var transcripts = {
     [key('2017-08-03 10:00')]: [
         {
@@ -418,4 +423,4 @@ var transcripts = {
 // posts to all subscribed Slack teams each time a `now` moment matches
 // a timestamp key in the `transcripts` object.
 var CronJob = require('cron').CronJob;
-new CronJob('0 * * * * *', checkTimeMatch, null, true, 'America/Los_Angeles');
+new CronJob('0 * * * * *', checkTimeMatch, null, true, currentTimezone);
