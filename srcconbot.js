@@ -11,6 +11,10 @@ and sends an alert if sessions are about to start.
 // Botkit is so good
 var Botkit = require('botkit');
 
+// are we in debug mode? If `true`, messages will only be sent
+// to the OpenNews Slack team
+var debug = true;
+
 // if we're running locally, look for credentials in an env.js file that's
 // not in the repo. In production, set credentials as Heroku config vars.
 if(!process.env.CLIENTID) {
@@ -119,24 +123,24 @@ var postToSlack = function(text, attachments) {
     controller.storage.teams.all(function(err, teams) {
         var count = 0;
         for (var t in teams) {
-            if (teams[t].incoming_webhook) {
+            if ((!debug && teams[t].incoming_webhook) || (debug && teams[t]['name'] == 'OpenNews' && teams[t].incoming_webhook)) {
                 count++;
                 controller.spawn(teams[t]).sendWebhook({
                     text: text,
                     attachments: attachments
                 }, function(err) {
-                if (err) {
-                    console.log(err);
-                }
-            });
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+            }
         }
-    }
-    console.log('Message sent to ' + count + ' teams!');
+        console.log('Message sent to ' + count + ' teams!');
     });
 }
 
 // sets up an oauth endpoint at https://BOT_SITE/oauth. This is
-// the Redirect URI you give your Slack app to uses for authentication.
+// the Redirect URI you give your Slack app to use for authentication
 controller.setupWebserver(PORT, function(err, webserver) {
     controller.createOauthEndpoints(controller.webserver, function(err, req, res) {
         if (err) {
@@ -148,7 +152,7 @@ controller.setupWebserver(PORT, function(err, webserver) {
     });
 });
 
-// provides an onboarding message when a Slack team first authenicates the bot.
+// provides an onboarding message when a Slack team first authenticates the bot
 controller.on('create_incoming_webhook', function(bot, webhook_config) {
     bot.sendWebhook({
         text: ':thumbsup: SRCCON Transcript Alerts are ready to roll! Each time a session with live transcription is about to begin, we\'ll post details and a link to the live transcript right here.'
@@ -156,7 +160,7 @@ controller.on('create_incoming_webhook', function(bot, webhook_config) {
 })
 
 // data specific to SRCCON 2017. Keys are string-formatted datetimes forced
-// to Central Time to match the `now` moment created by `checkTimeMatch`.
+// to `currentTimezone` to match the `now` moment created by `checkTimeMatch`.
 // Values are lists of session objects that can be passed into `sendAlert`
 // and formatted for sending to Slack.
 var key = d => moment.tz(d, currentTimezone).format("YYYY-MM-DD HH:mm");
@@ -164,257 +168,247 @@ var transcripts = {
     [key('2017-08-03 10:00')]: [
         {
             "day": "Thursday", 
-            "description": "News apps teams are becoming more technically sophisticated: building tools, databases and custom CMS's. Our newsrooms are now (partially) responsible for product, but struggle to implement modern tech processes (user-centric design, agile development, automated testing). How do we balance the \"do it right\" attitude of product with the \"do it now\" needs of editorial? Who needs to be at the table for those kinds of decisions? We want to look at some effective lessons that can be shared across the different disciplines and discuss effective, productive ways to bridge the gap.", 
-            "facilitators": "Julia Wolfe, Ivar Vong", 
-            "id": "threat-modeling-code", 
-            "length": "1 hour", 
-            "room": "Innovation Studio", 
-            "time": "10:30-11:30am", 
-            "title": "Threat Modeling for Code: When is Bad Code the Better Solution?"
-        },
+            "description": "As thoughtful and deliberate as we try to be, we’re all still human, and the overwhelming majority of us tend to seek out information that confirms what we already believe to be true. That’s a problem. As media organizations, we’re only serving a fraction of our communities if we can only reach those who already know and agree with the stories we’re sharing. So, what actually encourages people to consider perspectives that differ from their own, and how do we create more space for that?\n\nIn this session, we’ll dig in on these questions and get a little vulnerable as we try to create that space for ourselves. We’ll talk about how people come to believe what they believe, and look at the latest research around confirmation bias, the backlash effect, and other factors that shape how we make decisions and, ultimately, change our minds. In small groups, we’ll talk about areas where our perspectives have changed over time, and reflect on the forces that helped us change our point of view. We’ll surface common themes as a group and discuss ways these experiences could inform and—dare we say—change the way we approach our work.", 
+            "facilitators": "Marie Connelly, B Cordelia Yu", 
+            "id": "change-our-minds", 
+            "length": "75 minutes", 
+            "room": "Johnson", 
+            "time": "10-11:15am", 
+            "title": "How do we change our minds anyway?"
+        }, 
         {
             "day": "Thursday", 
-            "description": "The boons of publishing large, searchable databases are easy to grasp — with the right dataset, they can be major sources of traffic. It's easy to talk about the technical challenges of creating and maintaining these apps, and it's easy to argue for their existence in favor of openness — but what about the ethical challenges? There is much we've collectively learned over the course of nearly six years of maintaining the Texas Tribune's salary and prisoner databases. No matter how prepared you may be for the inevitable requests for exclusion, eventually there will be a request that causes you to pause and ask, \"wait, are we doing this right?\" What do you do when your established protocol is woefully inadequate for a person's request? When your news app puts you or your organization in the position of power, how do you ensure the humans in the data are treated with empathy? Our goal with this session is to encourage a dialog on and around these issues. We will go over our current policies, and share stories of what we've done well... and what we've done not so well. We'll work through different scenarios together, discuss and debate our responses and provide a space to discuss real life examples.", 
-            "facilitators": "Ryan Murphy", 
-            "id": "ethics-public-data", 
-            "length": "1 hour", 
-            "room": "Classroom 305", 
-            "time": "10:30-11:30am", 
-            "title": "You're The Reason My Name Is On Google: The Ethics Of Publishing Public Data"
-        },
+            "description": "Stop throwing away your shot. Using the dueling personalities of Alexander Hamilton and Aaron Burr, we’ll discuss solutions to common problems standing between you and a more productive, calm workday.\n\nLearn effective ways to get things done, improve your workflow, find better ways to collaborate and more!\n\nYou don’t need to know the Hamilton soundtrack inside out to participate, though some familiarity might make this more enjoyable. We’ll put together any story-specific information you need to know as a group and go from there.", 
+            "facilitators": "Hannah Birch", 
+            "id": "hamilton-or-burr", 
+            "length": "75 minutes", 
+            "room": "Ski-U-Mah", 
+            "time": "10-11:15am", 
+            "title": "Are you Hamilton or Burr? How to benignly manipulate the people around you"
+        }, 
         {
             "day": "Thursday", 
-            "description": "As a data science consultant, I use methods from statistics, machine learning, and design to solve problems. Communicating our findings effectively is to key to our success; it's important to both 1) faithfully and accurately present the data, the findings, and our recommendations, while 2) presenting all of that information in a quick, easily digestible way. Often, our end users don't have the time or technical expertise to comprehensively study our entire method, but neither do they ever want to blindly trust a \"black box\" method. So where is the in-between? I'll start the discussion by going through some of our experiences in communicating data science ideas both honestly and intuitively: from data visualization design choices, to experiential learning as a means for clients to understand complex ideas, to presentations with our end-to-end approach illustrated in simple analogies. Then I'd like to open up the floor, and learn from everybody else's experience. Time willing, I'd like to provide the opportunity for people to take a stab at presenting technical ideas of their own, and present them to the group in an intuitive way.", 
-            "facilitators": "Bo Peng", 
-            "id": "technical-ideas", 
-            "length": "1 hour", 
-            "room": "Boardroom", 
-            "time": "10:30-11:30am", 
-            "title": "How do we convey technical ideas without dumbing things down?"
+            "description": "In the current political environment, news cycles are getting shorter and the amount of work that needs to be done is greater by the day. We would like to discuss practical approaches newsrooms are taking to cover American democracy in the age of Trump, from building databases to automating information changes to making life easier for on-the-ground reporters and everything in between.", 
+            "facilitators": "Aaron Williams, Steven Rich", 
+            "id": "practical-software-democracy", 
+            "length": "75 minutes", 
+            "room": "Thomas Swain", 
+            "time": "10-11:15am", 
+            "title": "Practical approaches for creating software to cover democracy"
         }
     ],
     [key('2017-08-03 11:45')]: [
         {
             "day": "Thursday", 
-            "description": "At the end of 2014, Eric Meyer opened his Facebook feed to see an automated post marked \"your year in review,\" with a picture of his daughter--who had died that year from a brain tumor--surrounded by clip art of partygoers, confetti, and balloons. Nobody meant to cause Meyer harm, but thoughtlessness in the design of the feature (what he termed \"inadvertent algorithmic cruelty\") still left him shaken. And countless other examples abound. Of course, in the news industry, we're no strangers to accidental (and disastrous) juxtaposition: real estate ads placed next to stories on homelessness, bots that generate cringe-worthy content, and scheduled social media posts that go out during the worst kind of breaking news. In this session, we'll look at case studies of humane and inhumane design, practice identifying pitfalls in our news apps, and figure out how to care for our readers beyond just transmitting information.", 
-            "facilitators": "Thomas Wilburn", 
-            "id": "humane-news-apps", 
-            "length": "1 hour", 
-            "room": "Innovation Studio", 
-            "time": "12-1pm", 
-            "title": "Building news apps for humanity"
-        },
+            "description": "News is competitive. Digital news, even more so. And when we're all playing in the same space of news feeds and closed captioning, text must find a way to captivate an audience. But manipulating typography has been an age-old trick of tabloid magazines and sensationalized journalism, so why have we allowed some of these tactics to leak into the realm of digital journalism? Intentional or not, our use and abuse of typography brings up everything from silly snafus, like announcing the wrong winner of Miss Universe, to deeply unethical content that can stir fear and manipulate an audience's point of view. Let's explore how we may be using and abusing type in our newsrooms, how to avoid unethical treatment of typography, and what we can do to leverage text to our advantage *and* our audience's advantage.", 
+            "facilitators": "Dolly Li", 
+            "id": "typography-social-video", 
+            "length": "75 minutes", 
+            "room": "Johnson", 
+            "time": "11:45am-1pm", 
+            "title": "Using and Abusing Typography: How Social Video Is Playing Games With Your Heart"
+        }, 
         {
             "day": "Thursday", 
-            "description": "Adblockers, malware, load times. How can we break the cycle of bad business and worse code sinking journalism? Advertising technology is unavoidably part of our sites and stories. Right now it slows our output; damages our relationship with readers; and is failing even to fund most of our efforts. Without collaboration to create better tools and processes we are failing. Newsrooms, sales floors and tech teams must come together to repair our relationship with users and advertisers or find ourselves without the resources to continue. The session would focus on starting the multi-team conversations we aren't having. How can we work together to earn and keep the trust and attention of our readers? How can our organizations collaborate to build better, more open, and more trustworthy alternatives to malware-infested inaccurate ad tech? What would that look like and what data could we comfortably provide advertisers so we can better manage expectations? What are the conversations we should be having, the tools we should be building, with our sales departments?", 
-            "facilitators": "Aram Zucker-Scharff, Jarrod Dicker", 
-            "id": "fixing-ad-tech", 
-            "length": "1 hour", 
-            "room": "Classroom 305", 
-            "time": "12-1pm", 
-            "title": "Skipping the blame game and working across teams to fix newsroom Ad Tech"
-        },
+            "description": "Imagine a job where you could spend all your time pursuing new, creative projects, and get your whole office on board for every big, exciting idea you come up with. \n\nThat’s probably not your job (If it is, we envy you!). When you have an idea, you have to convince other people to embrace it. Maybe you’re trying to get buy-in on a new digital project, but your newsroom is focused on the reporting-writing-editing process. Maybe you’re trying to convince others to embrace a big idea that’s going to require lots of resources and time. Or maybe you see a way to overhaul a longstanding process to make your organization function better. In this session, we’ll create games to help us figure out ways to face the challenges of navigating digital initiatives in a small news organization.\n\nBring a work challenge you’ve been grappling with — or just bring yourself and your creativity!", 
+            "facilitators": "Sara Konrad Baranowski, Andrea Suozzo", 
+            "id": "navigate-roadblocks-games", 
+            "length": "75 minutes", 
+            "room": "Ski-U-Mah", 
+            "time": "11:45am-1pm", 
+            "title": "Candyland, Catan and Codenames — Oh My! Navigate Roadblocks in Small Newsrooms With Games"
+        }, 
         {
             "day": "Thursday", 
-            "description": "How can we make sure that our data stories are being held to a high standard? It can be hard to fight the temptation to draw sweeping conclusions with bad data, but perhaps there are ways to put checks and balances in place to make sure that our analysis is accurate. Let's discuss peer review processes and things that have worked in newsrooms and methods that have proved ineffective. Is there a best-practices approach to holding ourselves accountable for the data stories we tell?", 
-            "facilitators": "Ariana Giorgi, Christine Zhang", 
-            "id": "peer-review-data-stories", 
-            "length": "1 hour", 
-            "room": "Boardroom", 
-            "time": "12-1pm", 
-            "title": "How can we peer review our data stories?"
+            "description": "What can newsrooms learn from the process of launching a product? In this session we’ll use a WTF Just Happened Today as a case study to illustrate an example of launching an MVP product, validating product decisions, and iterating on a product. We’ll define a set of constraints through a group brainstorming session to identify a set of problems to be solved. From there, we’ll do a design brainstorm to think through products that can solve those problems, and create a hypothetical new news product worth paying for.", 
+            "facilitators": "Matt Kiser, Kelsey Scherer", 
+            "id": "news-products", 
+            "length": "75 minutes", 
+            "room": "Thomas Swain", 
+            "time": "11:45am-1pm", 
+            "title": "News products: How to design, launch, and iterate something worth paying for"
         }
     ],
     [key('2017-08-03 15:00')]: [
         {
             "day": "Thursday", 
-            "description": "Algorithms play an increasingly relevant role in shaping our digital and physical experiences of the world. It is frequently the case that data from our digital footprints is used to predict our behavior and make decisions about the choices available to us. This unprecedented capacity to collect and analyze data has brought along with it a troubling dismissiveness of user agency, participation, and ownership. Such systems assume that it is an acceptable by-product for their users to have no understanding of the decisions being made about them and no agency in that decision-making process. For the most part, the invisibilized nature of these decisions are seen as a feature, not a bug, of a good user experience. As we begin to use algorithmic decision-making in areas of our lives that are increasingly high-stakes, it is essential that we create and utilize processes that maintain user agency and understanding. In this session, participants will be imagining and designing user experiences that employ participatory algorithmic-decision making processes. The session will be open to folks from all experience levels. We would be excited to see folks from a variety of different backgrounds, including designers, data scientists, journalists, privacy & security practitioners, and organizers from marginalized and frequently surveilled communities.", 
-            "facilitators": "Tara Adiseshan, Linda Sandvik", 
-            "id": "participatory-algorithms", 
-            "length": "1 hour", 
-            "room": "Innovation Studio", 
-            "time": "2:30-3:30pm", 
-            "title": "Designing Participatory Algorithmic Decision-Making Processes"
-        },
+            "description": "Pothole locations, property tax bills, school test scores– local data is still vital to people’s daily lives and therefore, an important part of local news coverage. However, it can many times be tough to get ahold of and to deal with, especially when your editors expect New York Times level of quality with the budget and resources of the Pawnee Journal. In this session, we invite other local data journalists and enthusiasts to discuss the difficulties in working with local data and how can we make it better. How do we deal with local governments that give you data from a dot matrix printer? What are the best strategies to take national stories and localize them, especially when data might not exist on the local level? What’s the best way to showcase a data story that will really resonate with your readers who want to know more about what’s going on in their community? We’ll also be discussing our roles in small and ever-shrinking newsrooms, like we can maximize our usefulness without becoming a service desk. Join us to come up with a game plan to make local data journalism on par quality-wise with what the national newsrooms are doing. ", 
+            "facilitators": "Carla Astudillo, Erin Petenko, Steve Stirling", 
+            "id": "local-data-journalism", 
+            "length": "75 minutes", 
+            "room": "Johnson", 
+            "time": "3-4:15pm", 
+            "title": "Local data journalism still matters (and we can make it better!)"
+        }, 
         {
             "day": "Thursday", 
-            "description": "We talk a lot about documenting our work throughout projects, but we really don't talk enough about how we can use better documentation to start us off in our jobs with the right knowledge and technology stack of the newsroom. For example, when someone leaves the newsroom is there some type of minimum documentation that they have to do or is there no expectation set for this? What about all of the institutional knowledge that people take when they leave a newsroom? Should there be guidelines on what sources and information you leave behind so the next person doesn't have to spend a lot of time reinventing the wheel? Let's have a discussion about newsroom on-boarding and off-boarding processes and how we, as a news nerd community, can work through some simple ways together to make these processes more efficient and useful for the future.", 
-            "facilitators": "Sandhya Kambhampati", 
-            "id": "newsroom-onboarding", 
-            "length": "1 hour", 
-            "room": "Classroom 305", 
-            "time": "2:30-3:30pm", 
-            "title": "The good and bad of newsroom on-boarding processes (and how can we make them better)"
-        },
+            "description": "If people come to you to find out how to troubleshoot encryption keys or choose a password manager, you’re a security trainer, even if you think you’re neither qualified nor an expert. Let’s talk about best practices for ethical and responsible skill sharing, and about strategies for helping your newsroom colleagues and sources protect private conversations.\n\nOpen News and BuzzFeed Open Lab are collaborating on a curriculum designed specifically for newsroom trainers, so we'll use that as a jumping off point for our session.", 
+            "facilitators": "Amanda Hickman, Matt Perry", 
+            "id": "better-security-trainers", 
+            "length": "75 minutes", 
+            "room": "Ski-U-Mah", 
+            "time": "3-4:15pm", 
+            "title": "Let's be better security trainers together"
+        }, 
         {
             "day": "Thursday", 
-            "description": "The design and deployment of software has important implications for maintenance and operation in a newsroom. We'll discuss the attributes of software projects that have an impact on their sustainability & ease of use over time (who will run your code when you're gone?). We'll also play a little design game to map out which attributes take priority in our newsrooms, and how open source software projects in the news match up to those priorities.", 
-            "facilitators": "Ted Han, Mike Tigas", 
-            "id": "ecology-newsroom-software", 
-            "length": "1 hour", 
-            "room": "Classroom 310", 
-            "time": "2:30-3:30pm", 
-            "title": "The Ecology of Newsroom Software"
+            "description": "Distribution platforms like AMP, Facebook Instant Articles, and Apple News have changed how our organizations work. Having grown reliant on social distribution to reach new audiences, Publishers who had only ever dictated their terms of distribution had to learn to adapt their already-aging business models to walled gardens, new ways to measure reach and engagement, and work within Other People’s Priorities. Content format compatibility issues, maintaining wholly separate designs inside of early-stage platforms with low feature-sets, participation being equally opt-in and required to maintain SEO and reach, reduced ad opportunities, and gaps in analytics...it was a lot to take in. But publishers are doing more than making the best of it: they’re thriving.\n\nIn this session, we’ll look at what we’ve learned from learning to adapt. Your humble hosts will draw from their experience at The New Yorker, Pitchfork, Wired, Quartz, Hearst, Condé Nast, and Vox Media to offer a survey of the technologies and strategies publishers have created to navigate this uncharted frontier. We’ll discuss how our organizations monitor engagement, drive subscriptions and revenue, and balance our legacy systems with the needs these new platforms oblige. ", 
+            "facilitators": "Matt Dennewitz, Michael Donohoe, Luigi Ray-Montanez", 
+            "id": "platform-life", 
+            "length": "75 minutes", 
+            "room": "Thomas Swain", 
+            "time": "3-4:15pm", 
+            "title": "My Life In the Bush of Platforms"
         }
     ],
     [key('2017-08-03 16:45')]: [
         {
             "day": "Thursday", 
-            "description": "Who are you building for? What do they need? User research is something everyone on the team can be involved in, whether by asking a partner what they think or creating a quick usability test for others to try. Let's make a user research toolkit for everyone who's in a distributed dev team that works in news. How can we empower everyone on the team to run their own mini research projects, and then filter the results back into the product? Which listening/observation methods would help you with your work? We'll talk as a group about different methodologies, techniques, and organizational resistance that we've encountered. Together we'll aim to create a scrappy user research toolkit for all SRCCONers to take with them back to the office.", 
-            "facilitators": "Emily Goligoski, Andrew Losowosky", 
-            "id": "user-research-toolkit", 
-            "length": "1 hour", 
-            "room": "Innovation Studio", 
-            "time": "4-5pm", 
-            "title": "Hungry for audience insights? Let's make a DIY user research toolkit for newsrooms!"
-        },
+            "description": "The Panama Papers, Electionland, Documenting Hate -- in an age of shrinking newsrooms and big stories, collaboration between news organizations is key. Tools and systems that enable the many to work together -- both off-the-shelf and custom -- are a key ingredient to making that collaboration smooth. Together, we'll talk about the pros, cons, and heartaches in getting newsrooms to collaborate, and explore the possibilities through fun, group activities.", 
+            "facilitators": "Alan Palazzolo, Ken Schwencke, Andre Natta", 
+            "id": "newsroom-collaboration", 
+            "length": "75 minutes", 
+            "room": "Johnson", 
+            "time": "4:45-6pm", 
+            "title": "Greasing the wheels of inter-newsroom collaboration"
+        }, 
         {
             "day": "Thursday", 
-            "description": "Readers are increasingly interacting with news content from a variety of locations, environments and levels of ability. As a result, news organizations need to think about creating platforms and stories that readers can access in as many ways as possible. This session will discuss best practices for web accessibility, graphics, closed captioning, and social media and facilitate a discussion about what news organizations are doing and how we can improve as an industry.", 
-            "facilitators": "Joanna S. Kao, John Burn-Murdoch", 
-            "id": "accessibility", 
-            "length": "1 hour", 
-            "room": "Classroom 305", 
-            "time": "4-5pm", 
-            "title": "Accessibility in media"
-        },
+            "description": "We’ll start with a brainstorm of common topics, concepts, and processes that we think would benefit from explanation on interdisciplinary teams, i.e. version control, APIs, web accessibility, HTTPS, staging vs. production. Then, we’ll divide into groups and come up with any and all relevant metaphors (if time allows, we’ll even do a GIF-based brainstorm!) We’ll eventually refine and narrow down a list of useful metaphors — and none of that “explain what you do to your mom” language — the outcome of this session will be accessible and inclusive metaphors for all!", 
+            "facilitators": "Nicole Zhu", 
+            "id": "better-tech-metaphors", 
+            "length": "75 minutes", 
+            "room": "Ski-U-Mah", 
+            "time": "4:45-6pm", 
+            "title": "Toward better metaphors: Accessible and inclusive ways to explain technical work"
+        }, 
         {
             "day": "Thursday", 
-            "description": "Getting hundreds of reporters from different newsrooms in different countries to work together on the same project--and share--is the International Consortium of Investigative Journalists' (ICIJ) day-to-day challenge. For our latest investigation, the Panama Papers, we gathered more than 370 journalists from almost 80 countries to mine 11.5 million files. One of the missions of ICIJ's Data & Research Unit is to create the tools to make these collaborations happen seamlessly across borders. We've implemented social network platforms for reporters to communicate the findings, developed platforms to search over millions of documents and data and also to explore them visually. With reporters collaborating more and more across borders - or with different organizations - our challenge today could be yours tomorrow. Learn from our successes (and mistakes). \n\nWe want to share with you our experience in:\n\n* indexing and searching in documents ([Apache Solr](http://lucene.apache.org/solr/) and [Blacklight](https://github.com/projectblacklight/blacklight),\n* how to play with our structured data with the graph database [Neo4j](https://offshoreleaks.icij.org/pages/database),\n* and efficient and secure ways and tools to communicate with hundreds of journalists worldwide.\n", 
-            "facilitators": "Miguel Fiandor", 
-            "id": "tools-document-search", 
-            "length": "1 hour", 
-            "room": "Classroom 310", 
-            "time": "4-5pm", 
-            "title": "Tools to search millions of documents remotely and across borders"
+            "description": "Hackers, governmental entities, malicious ads, coffeeshop snoopers, airline Wi-fi, us-- all of these have the potential to violate the privacy of our users, our staff, and our sources. What responsibility does a newsroom have to protect these group’s privacy and personal information? How can we realistically fulfill these responsibilities? How can we assess what we have control over and what we can’t control? \n\nPrivacy in the digital world is complex and it is time for newsrooms to solidify their footing with new guidelines and tips. We want to explore multiple scenarios involving a privacy breach. The scenarios will cover behavioral, technological, and ethical issues based on real-life examples. You, the newsroom, will tackle the situation given to you. Your mission: come up with a set of guidelines on how to prevent and respond to your specific scenario.", 
+            "facilitators": "Ian Carrico, Lo Benichou", 
+            "id": "protect-user-privacy", 
+            "length": "75 minutes", 
+            "room": "Thomas Swain", 
+            "time": "4:45-6pm", 
+            "title": "How do we protect our users' privacy?"
         }
     ],
     [key('2017-08-04 10:00')]: [
         {
             "day": "Friday", 
-            "description": "You've read about messaging apps and the rise of AI-driven conversational news interfaces — but what's really effective for a news bot and what's just a tedious iteration of Choose Your Own Adventure, or Excel Macros, or if-this-then-that statements by another name? Millie and SMI spent the last year thinking about what makes a news app sound like a smart interesting friend. In this session we'll workshop how to ensure your news bots don't get stuck in a boring valley of uncanny.", 
-            "facilitators": "Millie Tran, Stacy-Marie Ishmael", 
-            "id": "bots-need-humans", 
-            "length": "1 hour", 
-            "room": "Innovation Studio", 
-            "time": "10:30-11:30am", 
-            "title": "Why your bot is nothing without a human"
-        },
+            "description": "The Fluxkit, designed and assembled by George Maciunas in 1965, contained printed matter, a film, and a variety of objects including a “wood box with offset labels and rubber opening containing unknown object,” by the Fluxus artist Ay-O.  The label read: “put finger in hole.”\n\nFluxus artists were playful revolutionaries who tried to undermine the authority of the museum and the primacy of the artist.  One strategy they deployed was demanding that the viewer complete (and thereby co-create) certain pieces of art.\n\nTo many of us news nerds, “interactive” has become a noun.  But how interactive is your interactive, really?  When’s the last time you stopped to consider just how revolutionary an idea it is to include your reader in the completion (or co-creation) of your work as a journalist?\n\nIn this session, we’ll forget about our newsrooms, tools, and data sets for a while and think about the essence of interaction.  What inspires us as individuals to reach out and try to affect the world?  As part of a group?  By what means can we do so?  How might find we are changed in turn?  What invites us and what repels us?  Where do exploration and interaction diverge?\n\nThen we’ll zoom back in and ask: how can we orchestrate meaningful interactive experiences through our work?  I’ll suggest some inspiration from the art world: happenings, instruction pieces, escape rooms, live action installations; please bring some inspirations of your own.\n\nAlone and in teams, we will hammer out manifestos and instruction pieces for building digital interactives, then swap them with each other.  Take your instructions home.  Follow them.  After SRCCON, we’ll publish the raw materials and the the interactives together as new sNerdFluxkit (2017).", 
+            "facilitators": "Scott Blumenthal, Britt Binler", 
+            "id": "new-snerd-fluxkit", 
+            "length": "75 minutes", 
+            "room": "Johnson", 
+            "time": "10-11:15am", 
+            "title": "new sNerdFluxkit (2017): inspiration and provocations for people who make interactives"
+        }, 
         {
             "day": "Friday", 
-            "description": "Audience development has become a hot, new buzzword inside nearly every news organization across the country. Everyone, it seems, is clamoring to hire an audience team. But what exactly is audience development? How do you find these magical creatures? What do they do? And can they really help connect your journalism with more people? The simple answer is yes. If you do it right. FRONTLINE has had an audience development team for four years, and it has been transformative. We've learned that when our editorial and audience teams work side by side, hand in hand we CAN make magic together. We've seen double and triple digit growth across multiple platforms. But the process isn't always easy, pretty or comfortable. In this session we'll have an open and honest conversation about our lessons learned. We'll share stories of success and failures. And we'll offer practical advice and tips for people who work in traditional newsrooms -- and for traditional bosses uncomfortable with thinking about audience. We'd also open it up to the room to hear more about how other newsrooms are approaching this.", 
-            "facilitators": "Sarah Moughty, Pamela Johnston", 
-            "id": "editorial-audience-development", 
-            "length": "1 hour", 
-            "room": "Classroom 305", 
-            "time": "10:30-11:30am", 
-            "title": "Break Down that Wall: Why Editorial and Audience Development Need to Work Together"
-        },
+            "description": "The U.S. has become increasingly polarized and, ironically, we complain about it within our own filter bubbles. Indeed, we comfortably sympathize with the views of our political parties, influencers and friends, and ignore the banter; in fact, Fox News viewers believe the news they watch is “fair and balanced”, while CNN watchers dismiss the idea that they could possibly be consuming “fake news.” But why such polarization and how did we get here? If Brexit and the US election teach us one thing, it is that it may be time to step outside our comfort bubbles and start a conversation with the opposing view.\n\nNow suppose you land in another filter bubble full of despisers and disbelievers. How would you convince them that universal healthcare isn’t a bad idea, or that a strong dollar doesn’t translate into a strong US economy? How would you even start such a conversation? For more complicated political and economic issues, how would you help people move forward beyond face value and hearsay? If laying out facts doesn’t work, how can you approach others outside your own filter bubbles with a more accessible, heartfelt or persuasive approach?\n\nThe suggested encounter will not be easy. But filter bubbles won’t burst by themselves. It is up to us to take them on, and we are conscientious and badass enough to pull it off! ", 
+            "facilitators": "Sonya Song", 
+            "id": "filter-bubbles", 
+            "length": "75 minutes", 
+            "room": "Ski-U-Mah", 
+            "time": "10-11:15am", 
+            "title": "Why you are part of the filter bubble problem and what you can do about it"
+        }, 
         {
             "day": "Friday", 
-            "description": "With the ‘silent movie' format of autoplaying Facebook News Feed videos, captioning has gone from being an accessibility concern, to being the primary hook many viewers will have into your video. Let's share examples of publishers making the most of this new creative format which demands a different story-telling style, combining text, animation and video. Optimising for this silent format is also a great reason to make your videos accessible through subtitles or closed-captions. Whether you're already captioning your videos or looking to get started let's go through recently developed tools for making this easier including crowdsourcing (Amara) and Speech To Text (Trint) and how you can integrate them into your workflows publishing on YouTube and Facebook.", 
-            "facilitators": "Gideon Goldberg", 
-            "id": "video-captioning", 
-            "length": "1 hour", 
-            "room": "Boardroom", 
-            "time": "10:30-11:30am", 
-            "title": "‘Insert Caption Here': how Facebook made video captioning cool"
+            "description": "When sharing ideas while interviewing for a position, you're essentially doing free consulting work if you don't get the gig. Together, let's explore better methods of testing skills through the hiring process. We'll dig into skills tests, idea proposals and more to come up with some best practices for the journalism-tech industry.", 
+            "facilitators": "Rachel Schallom", 
+            "id": "hiring-skills-tests", 
+            "length": "75 minutes", 
+            "room": "Thomas Swain", 
+            "time": "10-11:15am", 
+            "title": "Finding a better way to test skills while hiring"
         }
     ],
     [key('2017-08-04 11:45')]: [
         {
             "day": "Friday", 
-            "description": "In newsrooms of old, jobs were pretty easy to understand (reporters, editors, photographers, illustrators), as were the responsibilities that went with those jobs. But newsrooms still can be old-school, so even if you write and deploy code, you still probably have some non-technical managers and peers. How do you help them better understand what you do? How can you work effectively together and stay on good terms? How do you pitch ideas to them, and how do they pitch ideas to you? How do you communicate about progress, priorities and problems, both on a daily basis and in a crisis? Let's talk about what's worked and what still needs improvement.", 
-            "facilitators": "Gina Boysun, Justin Myers", 
-            "id": "juggling-expectations", 
-            "length": "1 hour", 
-            "room": "Innovation Studio", 
-            "time": "12-1pm", 
-            "title": "Every day I'm juggling: Managing managers, peer expectations, and your own project ideas"
-        },
+            "description": "Happy teams know what they're trying to achieve, and what their jobs are. It's easy to define crystal-clear goals and roles, but many managers fail to do so. (Ourselves included!) Whether you're a manager or just desperate for direction, join us to talk about proven techniques for team happiness.", 
+            "facilitators": "Brian Boyer, Livia Labate", 
+            "id": "goals-roles", 
+            "length": "75 minutes", 
+            "room": "Johnson", 
+            "time": "11:45am-1pm", 
+            "title": "Goals and Roles: Explicit is better than implicit"
+        }, 
         {
             "day": "Friday", 
-            "description": "Visual journalism is on the rise. Recent articles highlight its importance in the future of news, but most focus on video and interactives. Few, if any, even mention photojournalism. Let's spend a session overcompensating. We'll take the challenges we're interested in, whether it's interactive storytelling, push notifications, audience engagement or anything else, and come up with the most photo-centric solutions. Then, we will bring all of these ideas together and try to figure out how and where photojournalism fits best in our constantly shifting vision of the future.", 
-            "facilitators": "Neil Bedi", 
-            "id": "photojournalism-future-news", 
-            "length": "1 hour", 
-            "room": "Classroom 305", 
-            "time": "12-1pm", 
-            "title": "Where does photojournalism fit in the future of news?"
-        },
+            "description": "It’s surprisingly easy to end up in a teaching role without any particular training in how to teach. Whether you teach regularly or just occasionally (like leading sessions at conferences, hint, hint), come join this crash course in how we can teach to groups more effectively. We’ll take a quick look at recent trends and research in pedagogy for strategies you can use, then talk through common classroom problems such as needy and know-it-all students, questions you can’t answer off-hand, and how to deal if you don’t fit your students’ expectations about what a teacher is like.", 
+            "facilitators": "Lisa Waananen Jones, Amy Kovac-Ashley", 
+            "id": "teachers-lounge", 
+            "length": "75 minutes", 
+            "room": "Ski-U-Mah", 
+            "time": "11:45am-1pm", 
+            "title": "Teachers' Lounge: Talking Tips and Strategies for Effective Teaching to Groups"
+        }, 
         {
             "day": "Friday", 
-            "description": "When dealing with data that encapsulates the lives of hundreds, or even thousands, of people, keeping those people from becoming anonymous numbers can be challenging. In this session, we walk through tactics and strategies for keeping humanity at the centre of complex stories, and avoiding losing our audience while exploring the sheer scale of some of these data stories. We will use the evolution -- from early stage design sketches to version 3 finished product -- of the CBC's award-winning investigation into missing and murdered aboriginal women across Canada as some of our guiding examples through this discussion.", 
-            "facilitators": "William Wolfe-Wylie", 
-            "id": "people-data-stories", 
-            "length": "1 hour", 
-            "room": "Boardroom", 
-            "time": "12-1pm", 
-            "title": "Keeping people at the forefront of data stories"
+            "description": "Is your newsroom moving to WordPress? Moving away from WordPress? Moving to your parent company's CMS? Moving to Arc? Building a new CMS from scratch using Node? Rails? Django? (Are you using Django-CMS or Mezzanine or Wagtail?) Going headless with WordPress? Going headless with React?\n\n...or is your newsroom paralyzed by the sheer magnitude of the task of choosing and migrating to a new CMS, let along upgrading your current one?\n\nThis session is about the why and how of migrating your content to new systems. When is it time to change up your CMS, and why? When is it better to repair your ship instead of jumping off? What does the transition process look like-- for instance, how do you handle your archival stories, or make sure your frontend and backend features are in sync? How do you pull it off (technically)? How do you pull it off (organizationally)? Most importantly: was it worth it?", 
+            "facilitators": "Liam Andrew, Pattie Reaves", 
+            "id": "switching-cmses", 
+            "length": "75 minutes", 
+            "room": "Thomas Swain", 
+            "time": "11:45am-1pm", 
+            "title": "Switching CMSes"
         }
     ],
-    [key('2017-08-04 15:00')]: [
+    [key('2017-07-28 18:58')]: [
         {
             "day": "Friday", 
-            "description": "Science Fiction authors often embed deep insights into the future of technology within their stories. Come to this session to share examples of fascinating science fictional treatments of media and networked communication with other attendees and geek out about who got it right and who may yet come out correct. (My idea is to solicit ahead of time 4-6 super fans who are willing to give low-key lightning talks summarizing plots with an emphasis on the interesting media bits.)", 
-            "facilitators": "Joe Germuska", 
-            "id": "media-science-fiction", 
-            "length": "1 hour", 
-            "room": "Innovation Studio", 
-            "time": "2:30-3:30pm", 
-            "title": "Through an iPhone Darkly: Media and Networks through the lens of Science Fiction"
-        },
+            "description": "News breaks and journalists & editors scramble to react. Afterward shoulders are shrugged and we say \"Forget it, Jake. It's breaking news.\" That's how it works right?\n\nBut that's not how it needs to work. What if instead we could approach breaking news situations with a sense of calm and confidence? What if we considered the who, what, where, why and how of things that could happen, and simply left the when to chance?\n\nPut simply - let's all plan for the news that could/will happen in our market and consider a needs assessment.\n\nWhat background information and context should be at or near our fingertips? How to teach a reporting staff to know what their first \"reads\" are of a situation given their beat? What roles need to be filled first to get a handle on the news? What efficient and non-repetitive methods of managing information exist? How can we receive information from our audience? How can we convey meaningful information to our audience? And what traps exist?", 
+            "facilitators": "Chris Keller, Sara Simon", 
+            "id": "breaking-news-plan", 
+            "length": "75 minutes", 
+            "room": "Johnson", 
+            "time": "2:30-3:45pm", 
+            "title": "This just in... You can plan for breaking news"
+        }, 
         {
             "day": "Friday", 
-            "description": "As more news organizations turn an eye to analytical measurement, it is important to discuss what we're actually trying to measure when we use analytics. Often, that comes down to defining what success means for your storytelling. This session will help you to think about your stories and your needs before you start thinking about analytics. With a strong definition of success, it becomes easier to define success measurements. We will share different tools for creating success measurements as well.", 
-            "facilitators": "Tyler Fisher, Sonya Song", 
-            "id": "better-analytics", 
-            "length": "1 hour", 
-            "room": "Classroom 305", 
-            "time": "2:30-3:30pm", 
-            "title": "Better Analytics: Why You Have to Define Success Before You Use Analytics — And How To Do It"
-        },
+            "description": "Global warming is quite possibly the biggest challenge humanity is facing in our lifetime. Yet, we are having a hard time getting the message through: According to a [2016 Pew report](http://www.pewinternet.org/2016/10/04/public-views-on-climate-change-and-climate-scientists/), less than half of Americans believe that man-made global warming is real.\n\nClimate change is a complex topic but also diffuse and impersonal – hard to grasp for both the audience and us journalists. In this session, we'll work on better understanding climate change issues and on finding new, relatable ways to communicate them. We'll play a game in which we step in the shoes of climate change deniers, beneficiaries, but most importantly of those who suffer from the effects of global warming. Based on our learnings from that, we’ll come up with new ideas for communicating global warming, its reasons, and its effects on people’s lives – through graphics, interactive storytelling, or whatever else we can prototype on paper.", 
+            "facilitators": "Simon Jockers, Cathy Deng", 
+            "id": "climate-change-personal", 
+            "length": "75 minutes", 
+            "room": "Ski-U-Mah", 
+            "time": "2:30-3:45pm", 
+            "title": "Making climate change personal"
+        }, 
         {
             "day": "Friday", 
-            "description": "Strong communities start with one-on-one relationships that grow into networks. But what if you're a lonely coder, a student, or someone in a remote area without constant access to the wider news nerd network? Let's brainstorm ways to better facilitate connections between individuals in the community – perhaps through online meetings for project feedback or career advice. What would you want help with? How would you want to help someone else? What could these meetings look like? What would make them successful?", 
-            "facilitators": "Julia Smith", 
-            "id": "remote-mentorship", 
-            "length": "1 hour", 
-            "room": "Boardroom", 
-            "time": "2:30-3:30pm", 
-            "title": "Give and Receive: Can we strengthen our community through remote mentorship and office hours?"
+            "description": "In what ways do you interact with datasets? How might those interactions be improved? In this workshop we'll work through a series of small-group exercises to identify:\n\n- how we find, store, analyze, and publish data right now, and how those methods fail us\n- what gets in our way of keeping data organized and reusable\n- the kinds of training team members need to work with data\n- ways we might improve our day-to-day data work\n\nBy the end of the workshop you'll have a clearer understanding of what issues you face when working with data, learned from the experiences of other participants, and started a plan for improving how your newsroom works with data. ", 
+            "facilitators": "Seth Vincent", 
+            "id": "working-with-data", 
+            "length": "75 minutes", 
+            "room": "Thomas Swain", 
+            "time": "2:30-3:45pm", 
+            "title": "Working with data: Where was that spreadsheet? Wait, why has it changed?"
         }
     ],
-    [key('2017-08-04 16:45')]: [
+    [key('2017-07-28 19:00')]: [
         {
             "day": "Friday", 
-            "description": "**This session would be great for you if you're comfortable working collaboratively (sketching and sharing) in small groups.**\n\nWriting down processes, goals, and workflows is an important part of building healthy, transparent, and collaborative teams. But finding time to write and making sure that people read those documents is a constant challenge. This activity-based brainstorm session will lean into the expertise and experience of attendees to explore methods for building solid documentation practices into a team's culture.", 
-            "facilitators": "Kelsey Scherer, Lauren Rabaino", 
-            "id": "documentation-culture", 
-            "length": "1 hour", 
-            "room": "Innovation Studio", 
-            "time": "4-5pm", 
-            "title": "How can teams build a consistent culture of documentation?"
-        },
+            "description": "While it would be amazing for journalists to be spread across America, the big media companies are parked mostly in NYC and DC. This means we analyze data from afar and write anecdotal trend pieces without much understanding of the vast and diverse local populations that might be impacted or influencing some topic. Fear not! There are bunches of motivated and stoked people at the local level that want to find, process, and provide information to the public to help them be more informed. These civic hacktivists share an ethos with journalists. We should look to connect with local Code for America brigades to get more context at the local level until we actually achieve better geographic diversity in media.\n\nDave and Ernie help connect hackers and activists with their local governments to find ways to make government work better for the people. Come and discuss tactics for connecting with local brigades to find data and better understand local issues, local people and local governments… since we know y’all don’t have people living there.", 
+            "facilitators": "Dave Stanton, Ernie Hsiung", 
+            "id": "code-across-america", 
+            "length": "75 minutes", 
+            "room": "Ski-U-Mah", 
+            "time": "4:15-5:30pm", 
+            "title": "Code Across America: Working with local Code for America brigades to find local stories"
+        }, 
         {
             "day": "Friday", 
-            "description": "The BBC have been lucky enough to get a great undergraduate trainee programme up and running over the last 8 years. It's a really good way to get enthusiastic talented graduates into the organisation. But internships aren't without their issues. Andrew Leimdorfer (BBC) and Annie Daniel (Texas Tribune) will facilitate a conversation about people's experiences running internships and what it's like to be an intern. It's going to be conversation, so come along prepared to share stories, offer your own advice and ask questions.", 
-            "facilitators": "Andrew Leimdorfer, Annie Daniel", 
-            "id": "internships", 
-            "length": "1 hour", 
-            "room": "Classroom 305", 
-            "time": "4-5pm", 
-            "title": "Running undergraduate internships that produce great newsroom developers"
-        },
-        {
-            "day": "Friday", 
-            "description": "Faced with the drive to program to remote partners, apps, and corporate-owned-and-operated chat platforms, we find ourselves rolling the dice on a future that seems to call for a referendum on The Web. As the tools we use for storytelling become not just more diverse but more constrained by the spectre of Terms Of Service, can we hedge our bets? Or to put it a different way, does our work to serve both third-party platforms and the websites that serve as our foundations actually constitute a zero-sum game? This session proposes that, by stepping back, we can imagine a workflow and toolset that serves both needs—and, by extension, newsrooms—even better than the current generation of content management systems. In order to investigate this approach, we will ask three questions: 1. Rather than abandon the benefits that the web affords us as a structure, how can we carry with us the ethos and process of the web as we negotiate these new platforms? 2. Can our industry call upon a history of standards and protocols to avoid partner lock-in? 3. Should our tools pivot from a focus on authorship to one of reportage and remixing, allowing us to use new platforms in focused ways without losing control over the source material? What if the web is the best idea? How can we retain the imperatives of the web as we serve the future of storytelling, and what are the kinds of tools and standards we can rally around to preserve that context while allowing us to experiment in other people's walled gardens?", 
-            "facilitators": "David Yee", 
-            "id": "platforms-web-storytelling", 
-            "length": "1 hour", 
-            "room": "Boardroom", 
-            "time": "4-5pm", 
-            "title": "Get you a CMS that can do both: Platforms, the web, and storytelling imperatives"
+            "description": "It was a great idea. You worked really hard to bring it into this world, watched it grow and blossom. It had its moment in the sun, but now it's starting to slow down. Show its age. It's having a hard time keeping up, to be completely honest. Maybe you've even already moved on. How do you say goodbye? What does end of life care look like for news/tech projects? How do you manage successful transitions and handoffs? In this session we'll talk about about the hard decisions you sometimes have to make, how to prepare for these situations and how to make sure your projects (or at least the lessons learned) live on.", 
+            "facilitators": "Adam Schweigert, Ted Han", 
+            "id": "death-of-a-project", 
+            "length": "75 minutes", 
+            "room": "Thomas Swain", 
+            "time": "4:15-5:30pm", 
+            "title": "Let's Talk About Death 💀"
         }
     ]
 }
