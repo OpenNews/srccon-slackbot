@@ -357,7 +357,7 @@ var transcripts = {
             "title": "Switching CMSes"
         }
     ],
-    [key('2017-07-28 19:33')]: [
+    [key('2017-07-28 20:12')]: [
         {
             "day": "Friday", 
             "description": "News breaks and journalists & editors scramble to react. Afterward shoulders are shrugged and we say \"Forget it, Jake. It's breaking news.\" That's how it works right?\n\nBut that's not how it needs to work. What if instead we could approach breaking news situations with a sense of calm and confidence? What if we considered the who, what, where, why and how of things that could happen, and simply left the when to chance?\n\nPut simply - let's all plan for the news that could/will happen in our market and consider a needs assessment.\n\nWhat background information and context should be at or near our fingertips? How to teach a reporting staff to know what their first \"reads\" are of a situation given their beat? What roles need to be filled first to get a handle on the news? What efficient and non-repetitive methods of managing information exist? How can we receive information from our audience? How can we convey meaningful information to our audience? And what traps exist?", 
@@ -389,7 +389,7 @@ var transcripts = {
             "title": "Working with data: Where was that spreadsheet? Wait, why has it changed?"
         }
     ],
-    [key('2017-07-28 19:35')]: [
+    [key('2017-07-28 20:14')]: [
         {
             "day": "Friday", 
             "description": "While it would be amazing for journalists to be spread across America, the big media companies are parked mostly in NYC and DC. This means we analyze data from afar and write anecdotal trend pieces without much understanding of the vast and diverse local populations that might be impacted or influencing some topic. Fear not! There are bunches of motivated and stoked people at the local level that want to find, process, and provide information to the public to help them be more informed. These civic hacktivists share an ethos with journalists. We should look to connect with local Code for America brigades to get more context at the local level until we actually achieve better geographic diversity in media.\n\nDave and Ernie help connect hackers and activists with their local governments to find ways to make government work better for the people. Come and discuss tactics for connecting with local brigades to find data and better understand local issues, local people and local governments… since we know y’all don’t have people living there.", 
