@@ -89,10 +89,10 @@ var sendAlert = function(timeblock, message) {
             var attachments = [{
                 'thumb_url': 'https://srccon.org/media/img/logo75.png',
                 'pretext': ':speech_balloon::tada: A SRCCON 2017 session with live transcription is about to start!',
-                'fallback': `A SRCCON 2017 session with live transcription is about to start: ${transcript.title}. Open the live transcript at http://srccon.aloft.nu/2017-${transcript.id}.`,
+                'fallback': `A SRCCON 2017 session with live transcription is about to start: ${transcript.title}. Open the live transcript at https://aloft.nu/srccon/2017-${transcript.id}.`,
                 'color': '#F79797',
                 'title': transcript.title,
-                'title_link': 'http://srccon.aloft.nu/2017-'+transcript.id,
+                'title_link': 'https://aloft.nu/srccon/2017-'+transcript.id,
                 'text': transcript.description,
                 'fields': [
                     {
@@ -101,7 +101,7 @@ var sendAlert = function(timeblock, message) {
                     },
                     {
                         'title': 'Transcript',
-                        'value': `<http://srccon.aloft.nu/2017-${transcript.id}|Open the live transcript>`,
+                        'value': `<https://aloft.nu/srccon/2017-${transcript.id}|Open the live transcript>`,
                         'short': true
                     },
                     {
@@ -408,7 +408,7 @@ var transcripts = {
             "length": "75 minutes", 
             "room": "Thomas Swain", 
             "time": "4:15-5:30pm", 
-            "title": "Let's Talk About Death 💀"
+            "title": "Let's Talk About Death "
         }
     ]
 }
