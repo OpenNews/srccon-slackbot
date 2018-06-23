@@ -165,7 +165,7 @@ controller.on('create_incoming_webhook', function(bot, webhook_config) {
 // and formatted for sending to Slack.
 var key = d => moment.tz(d, currentTimezone).format("YYYY-MM-DD HH:mm");
 var transcripts = {
-    [key('2018-06-22 19:39')]: [
+    [key('2018-06-28 10:00')]: [
         {
             "day": "Thursday", 
             "description": "It happens all the time. We parachute into a community for a short time because something \"newsworthy\" happens rather than coming in to stay and maintain a steady relationship. Think Sutherland Springs and other locales of mass shootings. Think rural America and the 2016 presidential election. Think of the minority areas of our communities that remain underserved, underrepresented and without coverage aside from tragedies. \n\nHow do we put down the ripcord and instead pull up a chair in these communities? \n\nLet's spend some time learning how to do a baseline assessment of our news organization's coverage of diverse communities using analytics tools we already use everyday to identify blind spots. Let's arm ourselves with actionable strategies we can use when we return to our newsrooms and can use to have these difficult conversations about our coverage's shortcomings with top decision-makers. And finally, let's devise a set of best practices to engage diverse communities in the interim between news events and build lasting future relationships.", 
