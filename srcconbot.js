@@ -306,7 +306,7 @@ var transcripts = {
             "transcription": "y"
         }
     ],
-    [key('2018-06-28 16:15')]: [
+    [key('2018-06-28 16:30')]: [
         {
             "day": "Thursday", 
             "description": "What drives people to pay for journalism? Is it access to exclusive content? Incentives in the UX? Affordability? Attitudes and beliefs? Or is it something else? Together we’ll work through some universal ways of thinking about compelling people to support journalism with money. The session will begin with brainstorming to identify the reasons people pay for journalism. We’ll sort those ideas to find common themes that - surprise! - exist in any news organization, whether its focus is global, local or something in between. We’ll end with an exercise to develop ideas for real-world implementation so that everyone leaves the room with at least one concrete plan that they think will get their readers to pay for news.", 
