@@ -292,17 +292,17 @@ var transcripts = {
         }, 
         {
             "day": "Thursday", 
-            "description": "Increasingly, journalists don't just visualize data in raw form but build simple regression models that draw trendlines through a set of data points, telling the reader where the story runs through the dataset. In more advanced forms, reporters fill in gaps of missing data with an original simulation or draw connections between data points with a model.\n\nWhen journalists lean on statisticians' tools, we take on the same responsibilities for accuracy and fairness even as the methods we use change. Statistical techniques can falsely frame or overstate the importance of a trend or relationship between data points when used carelessly.\n\nLet's talk about what basic assumptions and considerations journalists should make when using statistical methods, and what kinds of red flags statisticians look for in bad model selection or diagnosis. How should a journalist should be thinking about these questions as opposed to a social scientist or researcher? What are some basic techniques all journalists should know when running data through a regression model? Let's also introduce some more advanced techniques that can teach us to see our data in new ways and open future discussions.", 
+            "description": "How do you disclose to your manager that you have a disability? Do you wait until after the job offer? How do you keep up with the demands of a 24-hour news cycle if you need special accommodations? What does this mean for your job growth? How do you manage an employee whose function can be unexpectedly limited? How can you live up to your reporting potential when your biology is thwarting you at seemingly every turn?\n\nThis session will start with anecdotes of tackling these tough conversations with bosses and coworkers, sharing what hasn’t worked and what has worked…better. The session will then move to a conversation where participants with disabilities can discuss life in the news industry. Topics could include how people have communicated their needs or accommodations to their employer, experiences working with HR, trying to fit in with the rest of their team or just attempting to get coworkers to understand. The goal of this session is to connect folks with disabilities, share coping techniques, and allow those without disabilities to listen and learn how best to support their colleagues.", 
             "everyone": "", 
-            "facilitators": "Sam Petulla, Hannah Fresques", 
-            "facilitators_twitter": "spetulla, HannahFresques", 
-            "id": "stats-newsroom", 
+            "facilitators": "Jasmine Mithani, Hannah Birch", 
+            "facilitators_twitter": "jazzmyth, hannahsbirch", 
+            "id": "disability-in-newsroom", 
             "length": "75 minutes", 
             "notepad": "y", 
-            "room": "Thomas Swain", 
+            "room": "Minnesota", 
             "time": "2:30-3:45pm", 
             "timeblock": "thursday-pm-1", 
-            "title": "Regression in the newsroom: When to use it and thinking about best practices", 
+            "title": "Sick [journalist] theory: real talk about navigating disability in the newsroom", 
             "transcription": "y"
         }
     ],
